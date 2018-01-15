@@ -1,0 +1,109 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="x-ua-compatible" content="ie=edge">
+	<title></title>
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+	<link rel="manifest" href="site.webmanifest">
+	<link rel="apple-touch-icon" href="icon.png">
+	<!-- Place favicon.ico in the root directory -->
+
+	<link rel="stylesheet" href="css/main.css">
+	<script src="https://www.gstatic.com/firebasejs/4.8.2/firebase.js"></script>
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
+	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+
+	<script>
+		Object.size = function(obj) {
+			var size = 0,
+				key;
+			for (key in obj) {
+				if (obj.hasOwnProperty(key)) size++;
+			}
+			return size;
+		};
+		// Initialize Firebase
+		var config = {
+			apiKey: "AIzaSyBEXE3xKNQXOR9FHNMug6fIS4WDULgwBjE",
+			authDomain: "neuvontajono.firebaseapp.com",
+			databaseURL: "https://neuvontajono.firebaseio.com",
+			projectId: "neuvontajono",
+			storageBucket: "neuvontajono.appspot.com",
+			messagingSenderId: "118588726168"
+		};
+		firebase.initializeApp(config);
+
+		var database = firebase.database();
+		var ref = firebase.database().ref("queue");
+
+		function writeUserData(name) {
+			var timestamp = (new Date().getTime()).toString(36);
+			ref.once("value")
+				.then(function(snapshot) {
+					var len = snapshot.val();
+					var queuePos = Object.size(len) + 1;
+					firebase.database().ref('queue/' + timestamp).set({
+						username: name,
+						queuePos: queuePos,
+					});
+				});
+		}
+
+		firebase.database().ref().on('value', function(snapshot) {
+			if(!snapshot.val() !== undefined) {
+				var sorted = sortQueue(snapshot.val().queue);
+				populateQueue(sorted);
+			}
+		});
+
+		function sortQueue(queue) {
+			var list = [];
+			$.each(queue, function(index, val) {
+				list.push({
+					name: val.username,
+					pos: val.queuePos,
+				});
+			});
+			list = _.sortBy(list, function(o){
+				return o.pos;
+			})
+			console.log(list);
+			return list;
+		}
+
+		function populateQueue(queue) {
+			var qu = $('#queue');
+			qu.empty();
+			$.each(queue, function(index, val) {
+				qu.append("<li> Sija: " + val.pos + " " + val.name + "</li>");
+			});
+		}
+
+		$(document).ready(function() {
+			$('#sub').on('click', function() {
+				var nimi = $('#nimi').val();
+				writeUserData(nimi);
+			});
+		})
+
+	</script>
+</head>
+
+<body>
+	<div id='queue'></div>
+	<input type='text' id='nimi'>
+	<button id='sub'>Submit</button>
+	<!--[if lte IE 9]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
+        <![endif]-->
+
+	<!-- Add your site or application content here -->
+
+	</script>
+</body>
+
+</html>
