@@ -16,7 +16,19 @@
 	<script src="https://www.gstatic.com/firebasejs/4.8.2/firebase.js"></script>
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.4/lodash.min.js'></script>
 	<script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
-
+	<style>
+		.info {
+			margin-bottom: 8px;
+			font-weight: 700;
+		}
+		#queue {
+			margin-top: 5px;
+			margin-bottom: 10px;
+		}
+		li {
+			list-style: none;
+		}
+	</style>
 	<script>
 		Object.size = function(obj) {
 			var size = 0,
@@ -54,10 +66,14 @@
 		}
 
 		firebase.database().ref().on('value', function(snapshot) {
-			if(!snapshot.val() !== undefined) {
+			if(snapshot.val() !== null) {
 				var sorted = sortQueue(snapshot.val().queue);
 				populateQueue(sorted);
 			}
+			else {
+				$('#queue').html('Jonossa ei ole ketään');
+			}
+			
 		});
 
 		function sortQueue(queue) {
@@ -71,7 +87,6 @@
 			list = _.sortBy(list, function(o){
 				return o.pos;
 			})
-			console.log(list);
 			return list;
 		}
 
@@ -79,24 +94,37 @@
 			var qu = $('#queue');
 			qu.empty();
 			$.each(queue, function(index, val) {
-				qu.append("<li> Sija: " + val.pos + " " + val.name + "</li>");
+				qu.append("<li>" + val.name + "</li>");
 			});
 		}
 
 		$(document).ready(function() {
 			$('#sub').on('click', function() {
-				var nimi = $('#nimi').val();
-				writeUserData(nimi);
+				var nimi = $('#nimi')
+				writeUserData(nimi.val());
+				nimi.val('');
 			});
 		})
+		
+		function del() {
+			
+		}
 
 	</script>
 </head>
 
 <body>
+	<div class='info'>
+		Seuraavana:
+	</div>
 	<div id='queue'></div>
+	
+	<div class='info'>
+		Lisää itsesi assarointijonoon:
+	</div>
 	<input type='text' id='nimi'>
-	<button id='sub'>Submit</button>
+
+	<button id='sub'>Lähetä</button>
 	<!--[if lte IE 9]>
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
         <![endif]-->
