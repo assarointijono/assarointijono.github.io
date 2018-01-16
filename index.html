@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta http-equiv="x-ua-compatible" content="ie=edge">
-	<title></title>
+	<title>Assarointijono</title>
 	<meta name="description" content="">
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
@@ -64,7 +64,6 @@
 				.then(function(snapshot) {
 					var len = snapshot.val();
 					var queuePos = findHighestQuePos(len) + 1;
-					console.log(queuePos);
 					firebase.database().ref('queue/' + timestamp).set({
 						username: name,
 						queuePos: queuePos,
@@ -75,6 +74,7 @@
 		firebase.database().ref().on('value', function(snapshot) {
 			if(snapshot.val() !== null) {
 				var sorted = sortQueue(snapshot.val().queue);
+				updateTitle(sorted);
 				populateQueue(sorted);
 			}
 			else {
@@ -95,6 +95,11 @@
 				return o.pos;
 			})
 			return list;
+		}
+
+		function updateTitle(queue){
+			var len = queue.length;
+			document.title = "Jonossa: " + len
 		}
 
 		function findHighestQuePos(queue) {
