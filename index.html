@@ -63,7 +63,8 @@
 			ref.once("value")
 				.then(function(snapshot) {
 					var len = snapshot.val();
-					var queuePos = Object.size(len) + 1;
+					var queuePos = findHighestQuePos(len) + 1;
+					console.log(queuePos);
 					firebase.database().ref('queue/' + timestamp).set({
 						username: name,
 						queuePos: queuePos,
@@ -94,6 +95,16 @@
 				return o.pos;
 			})
 			return list;
+		}
+
+		function findHighestQuePos(queue) {
+			var highest = 0
+			$.each(queue, function(index, val) {
+				if (val.queuePos >= highest) {
+					highest = val.queuePos
+				}
+			});
+			return highest;
 		}
 
 		function populateQueue(queue) {
